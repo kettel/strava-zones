@@ -1,0 +1,19 @@
+{
+  "name": "strava-zones",
+  "version": "1.0.0",
+  "description": "Extract your total amount spent in different heart rate zones from Strava",
+  "main": "index.js",
+  "dependencies": {
+    "cli-progress": "^2.0.0",
+    "moment": "^2.22.2",
+    "moment-duration-format": "^2.2.2",
+    "request": "^2.87.0",
+    "request-promise": "^4.2.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Wiktor Kettel <wiktor@kettel.se>",
+  "license": "MIT"
+}
