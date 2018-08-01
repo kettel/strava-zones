@@ -3,17 +3,17 @@ const moment = require("moment")
 const momentDurationFormatSetup = require("moment-duration-format")
 const _cliProgress = require("cli-progress")
 
-const STRAVA_TOKEN = "STRAVA_ACCESS_TOKEN"
+const STRAVA_TOKEN = "YOUR_STRAVA_ACCESS_TOKEN"
 const STRAVA_BASE_URL = "https://www.strava.com/api/v3"
 
 const sumArray = (accumulator, currentValue) => accumulator + currentValue
 
 const activitiesBar = new _cliProgress.Bar({
 	format: "{bar} {percentage}% | ETA: {eta}s | {value}/{total} pages parsed"
-}, _cliProgress.Presets.shades_classic);
+}, _cliProgress.Presets.shades_classic)
 const zonesBar = new _cliProgress.Bar({
 	format: "{bar} {percentage}% | ETA: {eta}s | {value}/{total} activities downloaded"
-}, _cliProgress.Presets.shades_classic);
+}, _cliProgress.Presets.shades_classic)
 
 const rpOptions = {
 	uri: STRAVA_BASE_URL,
@@ -27,9 +27,9 @@ let stravaRequestCount = 0
 
 async function getLoggedInUserId() {
 	let options = Object.assign({}, rpOptions)
-        options.uri = options.uri + "/athlete"
+	options.uri = options.uri + "/athlete"
 	let athleteId = -1
-	await rp(options).then(function(response){
+	await rp(options).then(response => {
 		athleteId = response.id
 		stravaRequestCount++
 	})
@@ -43,7 +43,7 @@ async function getLoggedInUserActivityCount() {
 	options.uri = options.uri + "/athletes/" + athleteId + "/stats"
 	let activitiesTotal = 0
 
-	await rp(options).then(function(response){
+	await rp(options).then(response => {
 		stravaRequestCount++
 		activitiesTotal = response.all_ride_totals.count + response.all_run_totals.count + response.all_swim_totals.count
 	})
@@ -56,18 +56,18 @@ async function getActivities() {
 	let perPage = 30
 	let totalActivityCount = await getLoggedInUserActivityCount()
 	let numberOfPages = Math.ceil(totalActivityCount / perPage)
-	
+
 	activitiesBar.start(numberOfPages, 0)
-	for(i = 0; i < numberOfPages; i++){
+	for (i = 0; i < numberOfPages; i++) {
 		let options = Object.assign({}, rpOptions)
-		options.uri = options.uri + "/athlete/activities" 
+		options.uri = options.uri + "/athlete/activities"
 		options.qs.per_page = perPage
 		options.qs.page = i + 1
 
-		activitiesPromises.push(rp(options).then(function(response){
-			for(id in response){
+		activitiesPromises.push(rp(options).then(response => {
+			for (id in response) {
 				activities.push(response[id].id)
-			}	
+			}
 			stravaRequestCount++
 			activitiesBar.increment()
 		}))
@@ -82,33 +82,33 @@ async function calculateTimeInZones(activityIds) {
 	let heartZonePromises = []
 
 	zonesBar.start(activityIds.length, 0)
-	for(id in activityIds) {
+	for (id in activityIds) {
 		let options = Object.assign({}, rpOptions)
-		options.uri = options.uri + "/activities/" + activityIds[id]  + "/zones"
+		options.uri = options.uri + "/activities/" + activityIds[id] + "/zones"
 
-		heartZonePromises.push(rp(options).then(function(response){
+		heartZonePromises.push(rp(options).then(response => {
 			zones.push(response[0].distribution_buckets)
 			stravaRequestCount++
-			zonesBar.increment();
+			zonesBar.increment()
 		}))
 	}
 	await Promise.all(heartZonePromises)
 	zonesBar.stop()
 
 	let totalZones = [0, 0, 0, 0, 0]
-	for(id in zones) {
-		for(i = 0; i < 5; i++){
+	for (id in zones) {
+		for (i = 0; i < 5; i++) {
 			totalZones[i] += zones[id][i].time
 		}
 	}
 
 	console.log("")
-	let totalTimeInZones = totalZones.reduce(sumArray)	
-	for(id in totalZones){
+	let totalTimeInZones = totalZones.reduce(sumArray)
+	for (id in totalZones) {
 		let zoneId = parseInt(id) + 1
 		let timeInZone = moment.duration(totalZones[id], "seconds").format("H:mm:ss")
-		let percentage = parseFloat(totalZones[id]/totalTimeInZones*100).toFixed(2)
-		console.log("Zone " + zoneId  + ": " + percentage + "% (" + timeInZone + ")")
+		let percentage = parseFloat(totalZones[id] / totalTimeInZones * 100).toFixed(2)
+		console.log("Zone " + zoneId + ": " + percentage + "% (" + timeInZone + ")")
 	}
 }
 
@@ -120,7 +120,7 @@ async function main() {
 		await calculateTimeInZones(activities)
 		console.log("")
 		console.log("Strava request count", stravaRequestCount)
-	} catch(err) {
+	} catch (err) {
 		console.error(err)
 	}
 }
