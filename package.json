@@ -1,7 +1,7 @@
 {
   "name": "strava-zones",
   "version": "1.0.0",
-  "description": "Extract your total amount spent in different heart rate zones from Strava",
+  "description": "Extract your total time and percentage spent in different heart rate zones, based on your public Strava activities",
   "main": "index.js",
   "dependencies": {
     "cli-progress": "^2.0.0",
@@ -15,5 +15,9 @@
     "start": "node index.js"
   },
   "author": "Wiktor Kettel <wiktor@kettel.se>",
-  "license": "MIT"
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kettel/strava-zones.git"
+  }
 }
